@@ -31,6 +31,7 @@ public class Main {
 
         if (!fileContents.isEmpty()) {
             int line = 1;
+            boolean hasError = false;
             for (char c : fileContents.toCharArray()) {
                 switch (c) {
                     case '(':
@@ -73,10 +74,14 @@ public class Main {
                         break;
                     default:
                         System.err.println("[line " + line + "] Error: Unexpected character: " + c);
+                        hasError = true;
                         break;
                 }
             }
             System.out.println("EOF  null");
+            if (hasError) {
+                System.exit(65);
+            }
         } else {
             System.out.println("EOF  null");
         }
