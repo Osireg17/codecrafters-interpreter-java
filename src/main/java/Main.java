@@ -30,12 +30,16 @@ public class Main {
             System.exit(1);
         }
 
-        if (fileContents.length() > 0) {
+        if (!fileContents.isEmpty()) {
             for (char c : fileContents.toCharArray()) {
                 if (c == '(') {
                     System.out.println("LEFT_PAREN ( null");
                 } else if (c == ')') {
                     System.out.println("RIGHT_PAREN ) null");
+                } else if (c == '{') {
+                    System.out.println("LEFT_BRACE { null");
+                } else if (c == '}') {
+                    System.out.println("RIGHT_BRACE } null");
                 }
             }
             System.out.println("EOF  null");
