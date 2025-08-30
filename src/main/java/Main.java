@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +30,7 @@ public class Main {
         }
 
         if (!fileContents.isEmpty()) {
+            int line = 1;
             for (char c : fileContents.toCharArray()) {
                 switch (c) {
                     case '(':
@@ -63,11 +63,22 @@ public class Main {
                     case '*':
                         System.out.println("STAR * null");
                         break;
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                        // Ignore whitespace
+                        break;
+                    case '\n':
+                        line++;
+                        break;
+                    default:
+                        System.err.println("[line " + line + "] Error: Unexpected character: " + c);
+                        break;
                 }
             }
             System.out.println("EOF  null");
         } else {
-            System.out.println("EOF  null"); // Placeholder, replace this line when implementing the scanner
+            System.out.println("EOF  null");
         }
     }
 }
