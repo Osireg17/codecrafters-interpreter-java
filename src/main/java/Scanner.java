@@ -120,11 +120,11 @@ class Scanner {
           case "while" -> TokenType.WHILE;
           default -> TokenType.IDENTIFIER;
       };
-      this.addToken(type);
+    this.addToken(type);
   }
 
   private boolean AlphaNumeric(char peek) {
-      return Character.isAlphabetic(peek) || Character.isDigit(peek);
+      return Character.isAlphabetic(peek) || Character.isDigit(peek) || peek == '_';
   }
 
   private boolean isAlpha(char c) {
