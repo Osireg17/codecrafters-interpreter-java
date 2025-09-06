@@ -1,109 +1,113 @@
+
 import java.util.ArrayList;
 import java.util.List;
 
 class Scanner {
-  private final String source;
-  private final List<Token> tokens = new ArrayList<>();
-  private int start = 0;
-  private int current = 0;
-  private int line = 1;
 
-  Scanner(String source) {
-    this.source = source;
-  }
+    private final String source;
+    private final List<Token> tokens = new ArrayList<>();
+    private int start = 0;
+    private int current = 0;
+    private int line = 1;
 
-  public List<Token> scanTokens() {
-    while (!this.isAtEnd()) {
-      start = current;
-      this.scanToken();
+    Scanner(String source) {
+        this.source = source;
     }
 
-    tokens.add(new Token(TokenType.EOF, "", null, line));
+    public List<Token> scanTokens() {
+        while (!this.isAtEnd()) {
+            start = current;
+            this.scanToken();
+        }
 
-    return tokens;
-  }
+        tokens.add(new Token(TokenType.EOF, "", null, line));
 
-  private boolean isAtEnd() {
-    return this.current >= this.source.length();
-  }
-
-  private void scanToken() {
-    char c = this.advance();
-
-    switch (c) {
-      case '(':
-        this.addToken(TokenType.LEFT_PAREN);
-        break;
-      case ')':
-        this.addToken(TokenType.RIGHT_PAREN);
-        break;
-      case '{':
-        this.addToken(TokenType.LEFT_BRACE);
-        break;
-      case '}':
-        this.addToken(TokenType.RIGHT_BRACE);
-        break;
-      case ',':
-        this.addToken(TokenType.COMMA);
-        break;
-      case '.':
-        this.addToken(TokenType.DOT);
-        break;
-      case '-':
-        this.addToken(TokenType.MINUS);
-        break;
-      case '+':
-        this.addToken(TokenType.PLUS);
-        break;
-      case ';':
-        this.addToken(TokenType.SEMICOLON);
-        break;
-      case '*':
-        this.addToken(TokenType.STAR);
-        break;
-      case '!':
-        this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
-        break;
-      case '=':
-        this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
-        break;
-      case '<':
-        this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
-        break;
-      case '>':
-        this.addToken(this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
-        break;
-      case ' ':
-      case '\r':
-      case '\t':
-        break;
-      case '\n':
-        this.line++;
-        break;
-      default:
-        Main.error(this.line, "Unexpected character: " + c);
-        break;
+        return tokens;
     }
-  }
 
-  private boolean match(char c) {
-    if (this.isAtEnd()) return false;
-    if (this.source.charAt(this.current) != c) return false;
+    private boolean isAtEnd() {
+        return this.current >= this.source.length();
+    }
 
-    this.current++;
-    return true;
-  }
+    private void scanToken() {
+        char c = this.advance();
 
-  private char advance() {
-    return this.source.charAt(this.current++);
-  }
+        switch (c) {
+            case '(' ->
+                this.addToken(TokenType.LEFT_PAREN);
+            case ')' ->
+                this.addToken(TokenType.RIGHT_PAREN);
+            case '{' ->
+                this.addToken(TokenType.LEFT_BRACE);
+            case '}' ->
+                this.addToken(TokenType.RIGHT_BRACE);
+            case ',' ->
+                this.addToken(TokenType.COMMA);
+            case '.' ->
+                this.addToken(TokenType.DOT);
+            case '-' ->
+                this.addToken(TokenType.MINUS);
+            case '+' ->
+                this.addToken(TokenType.PLUS);
+            case ';' ->
+                this.addToken(TokenType.SEMICOLON);
+            case '*' ->
+                this.addToken(TokenType.STAR);
+            case '!' ->
+                this.addToken(this.match() ? TokenType.BANG_EQUAL : TokenType.BANG);
+            case '=' ->
+                this.addToken(this.match() ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+            case '<' ->
+                this.addToken(this.match() ? TokenType.LESS_EQUAL : TokenType.LESS);
+            case '>' ->
+                this.addToken(this.match() ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+            case '/' -> {
+                if (this.peek() == '/') {
+                    while (this.peek() != '\n' && !this.isAtEnd()) {
+                        this.advance();
+                    }
+                } else {
+                    this.addToken(TokenType.SLASH);
+                }
+            }
+            case ' ', '\r', '\t' -> {
+            }
+            case '\n' ->
+                this.line++;
+            default ->
+                Main.error(this.line, "Unexpected character: " + c);
+        }
+    }
 
-  private void addToken(TokenType type) {
-    this.addToken(type, null);
-  }
+    private char peek() {
+        if (this.isAtEnd()) {
+            return '\0';
+        }
+        return this.source.charAt(this.current);
+    }
 
-  private void addToken(TokenType type, Object literal) {
-    String text = source.substring(start, current);
-    tokens.add(new Token(type, text, literal, line));
-  }
+    private boolean match() {
+        if (this.isAtEnd()) {
+            return false;
+        }
+        if (this.source.charAt(this.current) != '=') {
+            return false;
+        }
+
+        this.current++;
+        return true;
+    }
+
+    private char advance() {
+        return this.source.charAt(this.current++);
+    }
+
+    private void addToken(TokenType type) {
+        this.addToken(type, null);
+    }
+
+    private void addToken(TokenType type, Object literal) {
+        String text = source.substring(start, current);
+        tokens.add(new Token(type, text, literal, line));
+    }
 }
