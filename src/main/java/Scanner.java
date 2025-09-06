@@ -70,6 +70,13 @@ class Scanner {
                     this.addToken(TokenType.SLASH);
                 }
             }
+            case '"' -> {
+                if (this.peek() != '"' && !this.isAtEnd()) {
+                    this.string();
+                } else {
+                    Main.error(this.line, "Unterminated string.");
+                }
+            }
             case ' ', '\r', '\t' -> {
             }
             case '\n' ->
@@ -77,6 +84,23 @@ class Scanner {
             default ->
                 Main.error(this.line, "Unexpected character: " + c);
         }
+    }
+
+    private void string() {
+        while (this.peek() != '"' && !this.isAtEnd()) {
+            if (this.peek() == '\n') {
+                this.line++;
+            }
+            this.advance();
+        }
+
+        if (this.isAtEnd()) {
+            Main.error(this.line, "Unterminated string.");
+            return;
+        }
+        this.advance();
+        String value = this.source.substring(this.start + 1, this.current - 1);
+        this.addToken(TokenType.STRING, value);
     }
 
     private char peek() {
