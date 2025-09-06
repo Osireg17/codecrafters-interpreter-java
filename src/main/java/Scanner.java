@@ -32,6 +32,11 @@ class Scanner {
     private void scanToken() {
         char c = this.advance();
 
+        if (this.isDigit(c)) {
+            this.number();
+            return;
+        }
+
         switch (c) {
             case '(' ->
                 this.addToken(TokenType.LEFT_PAREN);
@@ -77,6 +82,7 @@ class Scanner {
                     Main.error(this.line, "Unterminated string.");
                 }
             }
+            //Need a case to handle numbers
             case ' ', '\r', '\t' -> {
             }
             case '\n' ->
@@ -84,6 +90,34 @@ class Scanner {
             default ->
                 Main.error(this.line, "Unexpected character: " + c);
         }
+    }
+
+    private void number() {
+        while (this.isDigit(this.peek())) {
+            this.advance();
+        }
+
+        if (this.peek() == '.' && this.isDigit(this.peekNext())) {
+            this.advance();
+
+            while (this.isDigit(this.peek())) {
+                this.advance();
+            }
+        }
+
+        String numberString = this.source.substring(this.start, this.current);
+        this.addToken(TokenType.NUMBER, Double.valueOf(numberString));
+    }
+
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private char peekNext() {
+        if (this.current + 1 >= this.source.length()) {
+            return '\0';
+        }
+        return this.source.charAt(this.current + 1);
     }
 
     private void string() {
