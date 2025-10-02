@@ -95,43 +95,60 @@ class Scanner {
         }
     }
 
-  private void identifier() {
-      while(this.AlphaNumeric(this.peek())) {
-          this.advance();
-      }
+    private void identifier() {
+        while (this.AlphaNumeric(this.peek())) {
+            this.advance();
+        }
 
-      String text = this.source.substring(this.start, this.current);
-      TokenType type = switch (text) {
-          case "and" -> TokenType.AND;
-          case "class" -> TokenType.CLASS;
-          case "else" -> TokenType.ELSE;
-          case "false" -> TokenType.FALSE;
-          case "for" -> TokenType.FOR;
-          case "fun" -> TokenType.FUN;
-          case "if" -> TokenType.IF;
-          case "nil" -> TokenType.NIL;
-          case "or" -> TokenType.OR;
-          case "print" -> TokenType.PRINT;
-          case "return" -> TokenType.RETURN;
-          case "super" -> TokenType.SUPER;
-          case "this" -> TokenType.THIS;
-          case "true" -> TokenType.TRUE;
-          case "var" -> TokenType.VAR;
-          case "while" -> TokenType.WHILE;
-          default -> TokenType.IDENTIFIER;
-      };
-    this.addToken(type);
-  }
+        String text = this.source.substring(this.start, this.current);
+        TokenType type = switch (text) {
+            case "and" ->
+                TokenType.AND;
+            case "class" ->
+                TokenType.CLASS;
+            case "else" ->
+                TokenType.ELSE;
+            case "false" ->
+                TokenType.FALSE;
+            case "for" ->
+                TokenType.FOR;
+            case "fun" ->
+                TokenType.FUN;
+            case "if" ->
+                TokenType.IF;
+            case "nil" ->
+                TokenType.NIL;
+            case "or" ->
+                TokenType.OR;
+            case "print" ->
+                TokenType.PRINT;
+            case "return" ->
+                TokenType.RETURN;
+            case "super" ->
+                TokenType.SUPER;
+            case "this" ->
+                TokenType.THIS;
+            case "true" ->
+                TokenType.TRUE;
+            case "var" ->
+                TokenType.VAR;
+            case "while" ->
+                TokenType.WHILE;
+            default ->
+                TokenType.IDENTIFIER;
+        };
+        this.addToken(type);
+    }
 
-  private boolean AlphaNumeric(char peek) {
-      return Character.isAlphabetic(peek) || Character.isDigit(peek) || peek == '_';
-  }
+    private boolean AlphaNumeric(char peek) {
+        return Character.isAlphabetic(peek) || Character.isDigit(peek) || peek == '_';
+    }
 
-  private boolean isAlpha(char c) {
-      return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
-  }
+    private boolean isAlpha(char c) {
+        return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
+    }
 
-  private void number() {
+    private void number() {
         while (this.isDigit(this.peek())) {
             this.advance();
         }

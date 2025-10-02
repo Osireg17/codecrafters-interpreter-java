@@ -1,5 +1,5 @@
 
-class Token {
+public class Token {
 
     final TokenType type;
     final String lexeme;
@@ -13,6 +13,7 @@ class Token {
         this.line = line;
     }
 
+    @Override
     public String toString() {
         return this.type + " " + this.lexeme + " " + this.literal;
     }
