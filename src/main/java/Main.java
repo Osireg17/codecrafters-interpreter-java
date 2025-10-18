@@ -26,8 +26,12 @@ public class Main {
         }
 
         switch (command) {
-            case "tokenize" -> run(fileContents);
-            case "parse" -> parse(fileContents);
+            case "tokenize" ->
+                run(fileContents);
+            case "parse" ->
+                parse(fileContents);
+            case "evaluate" ->
+                evaluate(fileContents);
             default -> {
                 System.err.println("Unknown command: " + command);
                 System.exit(1);
@@ -61,6 +65,21 @@ public class Main {
 
         AstPrinter printer = new AstPrinter();
         System.out.println(printer.print(expression));
+    }
+
+    public static void evaluate(String source) {
+        Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens();
+
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
+
+        if (hadError) {
+            return;
+        }
+
+        Interpreter interpreter = new Interpreter();
+        interpreter.interpret(expression);
     }
 
     static void error(int line, String message) {
