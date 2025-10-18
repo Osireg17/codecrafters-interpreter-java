@@ -79,11 +79,38 @@ public class Main {
         }
 
         Interpreter interpreter = new Interpreter();
-        interpreter.interpret(expression);
+        try {
+            Object value = interpreter.interpret(expression);
+            System.out.println(stringify(value));
+        } catch (RuntimeError error) {
+            runtimeError(error);
+        }
+    }
+
+    private static String stringify(Object object) {
+        if (object == null) {
+            return "nil";
+        }
+
+        if (object instanceof Double) {
+            String text = object.toString();
+            if (text.endsWith(".0")) {
+                text = text.substring(0, text.length() - 2);
+            }
+            return text;
+        }
+
+        return object.toString();
     }
 
     static void error(int line, String message) {
         report(line, "", message);
+    }
+
+    static void runtimeError(RuntimeError error) {
+        System.err.println(error.getMessage());
+        System.err.println("[line " + error.token.line + "]");
+        System.exit(70);
     }
 
     private static void report(int line, String where,
