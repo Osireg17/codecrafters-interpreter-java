@@ -27,11 +27,13 @@ public class Main {
 
         switch (command) {
             case "tokenize" ->
-                run(fileContents);
+                tokenize(fileContents);
             case "parse" ->
                 parse(fileContents);
             case "evaluate" ->
                 evaluate(fileContents);
+            case "run" ->
+                run(fileContents);
             default -> {
                 System.err.println("Unknown command: " + command);
                 System.exit(1);
@@ -43,7 +45,7 @@ public class Main {
         }
     }
 
-    public static void run(String source) {
+    public static void tokenize(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
@@ -52,27 +54,12 @@ public class Main {
         }
     }
 
-    public static void parse(String source) {
+    public static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
-
-        if (hadError) {
-            return;
-        }
-
-        AstPrinter printer = new AstPrinter();
-        System.out.println(printer.print(expression));
-    }
-
-    public static void evaluate(String source) {
-        Scanner scanner = new Scanner(source);
-        List<Token> tokens = scanner.scanTokens();
-
-        Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> statements = parser.parse();
 
         if (hadError) {
             return;
@@ -80,27 +67,47 @@ public class Main {
 
         Interpreter interpreter = new Interpreter();
         try {
-            Object value = interpreter.interpret(expression);
-            System.out.println(stringify(value));
+            interpreter.interpret(statements);
         } catch (RuntimeError error) {
             runtimeError(error);
         }
     }
 
-    private static String stringify(Object object) {
-        if (object == null) {
-            return "nil";
+    public static void parse(String source) {
+        Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens();
+
+        Parser parser = new Parser(tokens);
+        Stmt statement = parser.parseExpressionStatement();
+
+        if (hadError || statement == null) {
+            return;
         }
 
-        if (object instanceof Double) {
-            String text = object.toString();
-            if (text.endsWith(".0")) {
-                text = text.substring(0, text.length() - 2);
-            }
-            return text;
+        AstPrinter printer = new AstPrinter();
+        Stmt.Expression exprStmt = (Stmt.Expression) statement;
+        System.out.println(printer.print(exprStmt.expression));
+    }
+
+    public static void evaluate(String source) {
+        Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens();
+
+        Parser parser = new Parser(tokens);
+        Stmt statement = parser.parseExpressionStatement();
+
+        if (hadError || statement == null) {
+            return;
         }
 
-        return object.toString();
+        Interpreter interpreter = new Interpreter();
+        try {
+            Stmt.Expression exprStmt = (Stmt.Expression) statement;
+            Object result = interpreter.evaluate(exprStmt.expression);
+            System.out.println(interpreter.stringify(result));
+        } catch (RuntimeError error) {
+            runtimeError(error);
+        }
     }
 
     static void error(int line, String message) {

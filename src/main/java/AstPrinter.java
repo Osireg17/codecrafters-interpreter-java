@@ -1,8 +1,12 @@
 
-class AstPrinter implements Expr.Visitor<String> {
+class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
     String print(Expr expr) {
         return expr.accept(this);
+    }
+
+    String print(Stmt stmt) {
+        return stmt.accept(this);
     }
 
     @Override
@@ -26,6 +30,16 @@ class AstPrinter implements Expr.Visitor<String> {
     @Override
     public String visitUnaryExpr(Expr.Unary expr) {
         return parenthesize(expr.operator.lexeme, expr.right);
+    }
+
+    @Override
+    public String visitExpressionStmt(Stmt.Expression stmt) {
+        return parenthesize("expression", stmt.expression);
+    }
+
+    @Override
+    public String visitPrintStmt(Stmt.Print stmt) {
+        return parenthesize("print", stmt.expression);
     }
 
     private String parenthesize(String name, Expr... exprs) {

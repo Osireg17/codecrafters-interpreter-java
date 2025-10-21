@@ -1,8 +1,16 @@
 
-class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
 
-    Object interpret(Expr expression) {
-        return evaluate(expression);
+class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
+
+    void interpret(List<Stmt> statements) {
+        try {
+            for (Stmt statement : statements) {
+                execute(statement);
+            }
+        } catch (RuntimeError error) {
+            System.err.println(error.getMessage());
+        }
     }
 
     @Override
@@ -86,8 +94,37 @@ class Interpreter implements Expr.Visitor<Object> {
         }
     }
 
-    private Object evaluate(Expr expr) {
+    Object evaluate(Expr expr) {
         return expr.accept(this);
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    String stringify(Object value) {
+        if (value == null) {
+            return "nil";
+        }
+
+        if (value instanceof Double) {
+            String text = value.toString();
+            if (text.endsWith(".0")) {
+                text = text.substring(0, text.length() - 2);
+            }
+            return text;
+        }
+
+        return value.toString();
     }
 
     private boolean isTruthy(Object object) {
@@ -122,5 +159,9 @@ class Interpreter implements Expr.Visitor<Object> {
             return;
         }
         throw new RuntimeError(operator, "Operands must be numbers.");
+    }
+
+    private void execute(Stmt statement) {
+        statement.accept(this);
     }
 }

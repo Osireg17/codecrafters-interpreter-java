@@ -10,12 +10,48 @@ class Parser {
         this.tokens = tokens;
     }
 
-    public Expr parse() {
+    List<Stmt> parse() {
+        List<Stmt> statements = new java.util.ArrayList<>();
+        while (!isAtEnd()) {
+            try {
+                statements.add(statement());
+            } catch (ParseError error) {
+                synchronize();
+            }
+        }
+        return statements;
+    }
+
+    Stmt parseExpressionStatement() {
         try {
-            return expression();
+            Expr expr = expression();
+            // For evaluate command: don't require semicolon
+            if (!isAtEnd() && check(TokenType.SEMICOLON)) {
+                consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+            }
+            return new Stmt.Expression(expr);
         } catch (ParseError error) {
             return null;
         }
+    }
+
+    private Stmt statement() {
+        if (match(TokenType.PRINT)) {
+            return printStatement();
+        }
+        return expressionStatement();
+    }
+
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
     }
 
     private Expr expression() {
@@ -163,6 +199,24 @@ class Parser {
 
     private Token previous() {
         return tokens.get(current - 1);
+    }
+
+    private void synchronize() {
+        advance();
+
+        while (!isAtEnd()) {
+            if (previous().type == TokenType.SEMICOLON) {
+                return;
+            }
+
+            switch (peek().type) {
+                case CLASS, FUN, VAR, FOR, IF, WHILE, PRINT, RETURN -> {
+                    return;
+                }
+            }
+
+            advance();
+        }
     }
 
 }
