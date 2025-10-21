@@ -78,13 +78,8 @@ class Scanner {
                     this.addToken(TokenType.SLASH);
                 }
             }
-            case '"' -> {
-                if (this.peek() != '"' && !this.isAtEnd()) {
-                    this.string();
-                } else {
-                    Main.error(this.line, "Unterminated string.");
-                }
-            }
+            case '"' ->
+                this.string();
             //Need a case to handle numbers
             case ' ', '\r', '\t' -> {
             }
