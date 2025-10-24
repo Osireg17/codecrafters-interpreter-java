@@ -4,12 +4,8 @@ import java.util.List;
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     void interpret(List<Stmt> statements) {
-        try {
-            for (Stmt statement : statements) {
-                execute(statement);
-            }
-        } catch (RuntimeError error) {
-            System.err.println(error.getMessage());
+        for (Stmt statement : statements) {
+            execute(statement);
         }
     }
 
@@ -100,8 +96,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
-        Object value = evaluate(stmt.expression);
-        System.out.println(stringify(value));
+        evaluate(stmt.expression);
         return null;
     }
 

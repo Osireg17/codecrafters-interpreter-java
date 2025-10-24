@@ -7,6 +7,7 @@ import java.util.List;
 public class Main {
 
     static boolean hadError = false;
+    static boolean hadRuntimeError = false;
 
     public static void main(String[] args) {
         if (args.length < 2) {
@@ -40,7 +41,9 @@ public class Main {
             }
         }
 
-        if (hadError) {
+        if (hadRuntimeError) {
+            System.exit(70);
+        } else if (hadError) {
             System.exit(65);
         }
     }
@@ -69,7 +72,9 @@ public class Main {
         try {
             interpreter.interpret(statements);
         } catch (RuntimeError error) {
-            runtimeError(error);
+            System.err.println(error.getMessage());
+            System.err.println("[line " + error.token.line + "]");
+            hadRuntimeError = true;
         }
     }
 

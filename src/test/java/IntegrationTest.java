@@ -1,12 +1,12 @@
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class IntegrationTest {
 
@@ -24,6 +24,7 @@ class IntegrationTest {
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
         Main.hadError = false;
+        Main.hadRuntimeError = false;
     }
 
     @AfterEach
@@ -45,6 +46,50 @@ class IntegrationTest {
         Interpreter interpreter = new Interpreter();
         Stmt.Expression exprStmt = (Stmt.Expression) statement;
         return interpreter.evaluate(exprStmt.expression);
+    }
+
+    @Test
+    void itShouldHandlePrintStatementWithExpression(){
+        Main.run(
+            """
+            print "the expression below is invalid";
+            49 + "baz";
+            print "this should not be printed";
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("the expression below is invalid");
+        assertThat(errContent.toString()).contains("Operands must be two numbers or two strings.");
+        assertThat(errContent.toString()).contains("[line 2]");
+        assertThat(lines.length).isEqualTo(1);
+    }
+
+    @Test
+    void itShouldHandleExpressionStatements(){
+        Main.run("""
+                 (63 + 37 - 52) > (29 - 63) * 2;
+                 print !true;
+                 "quz" + "bar" + "baz" == "quzbarbaz";
+                 print !true;
+                 """);
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("false");
+        assertThat(lines[1].trim()).isEqualTo("false");
+        assertThat(lines.length).isEqualTo(2);
+    }
+
+    @Test
+    void itShouldHandleExpressionStatmentsOperandNumbers(){
+        Main.run(
+            """
+            print "79" + "baz";
+            print false * (18 + 84);
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("79baz");
+        assertThat(errContent.toString()).contains("Operands must be numbers.");
+        assertThat(errContent.toString()).contains("[line 2]");
     }
 
     @Test
@@ -70,7 +115,7 @@ class IntegrationTest {
     //Write a test case to handle multiple statements
     @Test
     void itShouldPrintMultipleStatements() {
-        Main.run(" \"world\" + \"baz\" + \"bar\"; print 27 - 26; print \"bar\" == \"quz\";");
+        Main.run("print \"world\" + \"baz\" + \"bar\"; print 27 - 26; print \"bar\" == \"quz\";");
         String[] lines = outContent.toString().split("\n");
         assertThat(lines[0].trim()).isEqualTo("worldbazbar");
         assertThat(lines[1].trim()).isEqualTo("1");
