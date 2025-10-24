@@ -54,4 +54,17 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
         return builder.toString();
     }
+
+    @Override
+    public String visitVariableExpr(Expr.Variable expr) {
+        return expr.name.lexeme;
+    }
+
+    @Override
+    public String visitVarStmt(Stmt.Var stmt) {
+        if (stmt.initializer != null) {
+            return parenthesize("var " + stmt.name.lexeme, stmt.initializer);
+        }
+        return "(var " + stmt.name.lexeme + ")";
+    }
 }

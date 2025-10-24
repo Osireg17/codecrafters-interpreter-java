@@ -1,4 +1,5 @@
 
+import java.util.ArrayList;
 import java.util.List;
 
 class Parser {
@@ -11,13 +12,9 @@ class Parser {
     }
 
     List<Stmt> parse() {
-        List<Stmt> statements = new java.util.ArrayList<>();
+        List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            try {
-                statements.add(statement());
-            } catch (ParseError error) {
-                synchronize();
-            }
+            statements.add(declaration());
         }
         return statements;
     }
@@ -131,6 +128,10 @@ class Parser {
             return new Expr.Literal(previous().literal);
         }
 
+        if (match(TokenType.IDENTIFIER)) {
+            return new Expr.Variable(previous());
+        }
+
         if (match(TokenType.LEFT_PAREN)) {
             Expr expr = expression();
             consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
@@ -166,6 +167,29 @@ class Parser {
             Main.error(token.line, " at '" + token.lexeme + "'" + ": " + message);
         }
         return new ParseError();
+    }
+
+    private Stmt declaration() {
+        try {
+            if (match(TokenType.VAR)) return varDeclaration();
+
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Stmt varDeclaration() {
+        Token name = consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+        Expr initializer = null;
+        if (match(TokenType.EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
     }
 
     private static class ParseError extends RuntimeException {
