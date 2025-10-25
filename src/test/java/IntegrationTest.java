@@ -527,4 +527,55 @@ class IntegrationTest {
         assertThat(lines[1].trim()).isEqualTo("3144");
         assertThat(lines.length).isEqualTo(2);
     }
+
+    @Test
+    void itShouldHandleSingleBlock() {
+        Main.run(
+            """
+            {
+                var hello = "baz";
+                print hello;
+            }
+            """
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("baz");
+    }
+
+    @Test
+    void itShouldHandleMultipleBlocks() {
+        Main.run(
+            """
+            {
+                var world = "before";
+                print world;
+            }
+            {
+                var world = "after";
+                print world;
+            }
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("before");
+        assertThat(lines[1].trim()).isEqualTo("after");
+    }
+
+    @Test
+    void itShouldHandleNestedBlocks() {
+        Main.run(
+            """
+            {
+                var hello = 88;
+                {
+                    var foo = 88;
+                    print foo;
+                }
+                print hello;
+            }
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("88");
+        assertThat(lines[1].trim()).isEqualTo("88");
+    }
 }

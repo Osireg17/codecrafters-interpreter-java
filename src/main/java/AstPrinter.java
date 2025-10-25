@@ -1,4 +1,6 @@
 
+import java.util.List;
+
 class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
     String print(Expr expr) {
@@ -32,7 +34,13 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
         return parenthesize(expr.operator.lexeme, expr.right);
     }
 
-    @Override
+
+  @Override
+  public String visitBlockStmt(Stmt.Block stmt) {
+    return "";
+  }
+
+  @Override
     public String visitExpressionStmt(Stmt.Expression stmt) {
         return parenthesize("expression", stmt.expression);
     }
