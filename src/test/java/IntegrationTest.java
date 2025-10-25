@@ -484,4 +484,47 @@ class IntegrationTest {
         assertThat(errContent.toString()).contains("Expect expression");
         assertThat(Main.hadError).isTrue();
     }
+
+    @Test
+    void itShouldHandleVariableReassignmentAndPrinting() {
+        Main.run(
+            "var quz;\n" +
+            "quz = 1;\n" +
+            "print quz;\n" +
+            "print quz = 2;\n" +
+            "print quz;\n"
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("1");
+        assertThat(lines[1].trim()).isEqualTo("2");
+        assertThat(lines[2].trim()).isEqualTo("2");
+        assertThat(lines.length).isEqualTo(3);
+    }
+
+    @Test
+    void itShouldHandleChainedVariableAssignment() {
+        Main.run(
+            "var hello = 93;\n" +
+            "var bar = 93;\n" +
+            "bar = hello;\n" +
+            "hello = bar;\n" +
+            "print hello + bar;\n"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("186");
+    }
+
+    @Test
+    void itShouldHandleComplexChainedAssignment() {
+        Main.run(
+            "var quz;\n" +
+            "var hello;\n" +
+            "quz = hello = 16 + 34 * 92;\n" +
+            "print quz;\n" +
+            "print hello;\n"
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("3144");
+        assertThat(lines[1].trim()).isEqualTo("3144");
+        assertThat(lines.length).isEqualTo(2);
+    }
 }
