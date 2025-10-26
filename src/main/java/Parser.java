@@ -33,14 +33,37 @@ class Parser {
     }
 
     private Stmt statement() {
-        if (match(TokenType.PRINT)) {
-            return printStatement();
-        }
+        if (match(TokenType.IF)) return ifStatement();
+        if (match(TokenType.PRINT)) return printStatement();
+        if(match(TokenType.WHILE)) return whileStatement();
         if(match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
         return expressionStatement();
     }
 
-  private List<Stmt> block() {
+    private Stmt whileStatement() {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        Expr condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+    }
+
+    private Stmt ifStatement() {
+        consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(TokenType.ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
 
         while (!check(TokenType.RIGHT_BRACE) && !isAtEnd()) {
@@ -68,7 +91,7 @@ class Parser {
     }
 
   private Expr assignment() {
-        Expr expr = equality();
+        Expr expr = OR();
 
         if (match(TokenType.EQUAL)) {
             Token equals = previous();
@@ -85,7 +108,31 @@ class Parser {
         return expr;
   }
 
-  private Expr equality() {
+    private Expr OR() {
+        Expr expr = AND();
+
+        while (match(TokenType.OR)) {
+            Token operator = previous();
+            Expr right = AND();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr AND() {
+        Expr expr = equality();
+
+        while (match(TokenType.AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr equality() {
         Expr expr = comparison();
 
         while (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {

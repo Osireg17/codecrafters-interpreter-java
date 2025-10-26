@@ -578,4 +578,22 @@ class IntegrationTest {
         assertThat(lines[0].trim()).isEqualTo("88");
         assertThat(lines[1].trim()).isEqualTo("88");
     }
+
+    @Test
+    void itShouldHandleIfStatement() {
+        Main.run("if (true) print \"bar\";");
+        assertThat(outContent.toString().trim()).isEqualTo("bar");
+    }
+
+    @Test
+    void itShouldHandleIfStatementWithBlock() {
+        Main.run("if (true) { print \"block body\"; }");
+        assertThat(outContent.toString().trim()).isEqualTo("block body");
+    }
+
+    @Test
+    void itShouldHandleIfStatementWithAssignment() {
+        Main.run("var a = false; if (a = true) { print (a == true); }");
+        assertThat(outContent.toString().trim()).isEqualTo("true");
+    }
 }
