@@ -782,4 +782,63 @@ class IntegrationTest {
         assertThat(lines[1].trim()).isEqualTo("2");
         assertThat(lines[2].trim()).isEqualTo("3");
     }
+
+    @Test
+    void itShouldErrorWhenReadingVariableInItsOwnInitializer() {
+        Main.run(
+            "var a = \"outer\";\n" +
+            "{\n" +
+            "  var a = a;\n" +
+            "}"
+        );
+        assertThat(errContent.toString()).contains("[line 3] Error");
+        assertThat(errContent.toString()).contains("Can't read local variable in its own initializer");
+        assertThat(Main.hadError).isTrue();
+        assertThat(outContent.toString().trim()).isEmpty();
+    }
+
+    @Test
+    void itShouldErrorWhenReadingVariableInItsOwnInitializerWithFunctionCall() {
+        Main.run(
+            "fun returnArg(arg) {\n" +
+            "  return arg;\n" +
+            "}\n" +
+            "\n" +
+            "var b = \"global\";\n" +
+            "{\n" +
+            "  var a = \"first\";\n" +
+            "  var b = returnArg(b);\n" +
+            "  print b;\n" +
+            "}\n" +
+            "\n" +
+            "var b = b + \" updated\";\n" +
+            "print b;"
+        );
+        assertThat(errContent.toString()).contains("[line 8] Error");
+        assertThat(errContent.toString()).contains("Can't read local variable in its own initializer");
+        assertThat(Main.hadError).isTrue();
+        assertThat(outContent.toString().trim()).isEmpty();
+    }
+
+    @Test
+    void itShouldErrorWhenReadingVariableInItsOwnInitializerInNestedFunction() {
+        Main.run(
+            "fun outer() {\n" +
+            "  var a = \"outer\";\n" +
+            "\n" +
+            "  fun inner() {\n" +
+            "    var a = a;\n" +
+            "    print a;\n" +
+            "  }\n" +
+            "\n" +
+            "  inner();\n" +
+            "}\n" +
+            "\n" +
+            "outer();"
+        );
+        assertThat(errContent.toString()).contains("[line 5] Error");
+        assertThat(errContent.toString()).contains("Can't read local variable in its own initializer");
+        assertThat(Main.hadError).isTrue();
+        assertThat(outContent.toString().trim()).isEmpty();
+    }
 }

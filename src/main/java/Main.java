@@ -72,6 +72,11 @@ public class Main {
         try {
             Resolver resolver = new Resolver(interpreter);
             resolver.resolve(statements);
+
+            if (hadError) {
+                return;
+            }
+
             interpreter.interpret(statements);
         } catch (RuntimeError error) {
             System.err.println(error.getMessage());
