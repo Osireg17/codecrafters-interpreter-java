@@ -697,4 +697,89 @@ class IntegrationTest {
         );
         assertThat(outContent.toString().trim()).isEqualTo("nil");
     }
+
+    @Test
+    void itShouldHandleClosureWithFunctionRedefinition() {
+        Main.run(
+            "fun global() {\n" +
+            "  print \"global\";\n" +
+            "}\n" +
+            "\n" +
+            "{\n" +
+            "  fun f() {\n" +
+            "    global();\n" +
+            "  }\n" +
+            "\n" +
+            "  f();\n" +
+            "\n" +
+            "  fun global() {\n" +
+            "    print \"local\";\n" +
+            "  }\n" +
+            "\n" +
+            "  f();\n" +
+            "}"
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("global");
+        assertThat(lines[1].trim()).isEqualTo("global");
+    }
+
+    @Test
+    void itShouldHandleNestedClosuresWithShadowing() {
+        Main.run(
+            "var x = \"global\";\n" +
+            "\n" +
+            "fun outer() {\n" +
+            "  var x = \"outer\";\n" +
+            "\n" +
+            "  fun middle() {\n" +
+            "    fun inner() {\n" +
+            "      print x;\n" +
+            "    }\n" +
+            "\n" +
+            "    inner();\n" +
+            "\n" +
+            "    var x = \"middle\";\n" +
+            "\n" +
+            "    inner();\n" +
+            "  }\n" +
+            "\n" +
+            "  middle();\n" +
+            "}\n" +
+            "\n" +
+            "outer();"
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("outer");
+        assertThat(lines[1].trim()).isEqualTo("outer");
+    }
+
+    @Test
+    void itShouldHandleClosureWithCounterAndShadowing() {
+        Main.run(
+            "var count = 0;\n" +
+            "\n" +
+            "{\n" +
+            "  fun makeCounter() {\n" +
+            "    fun counter() {\n" +
+            "      count = count + 1;\n" +
+            "      print count;\n" +
+            "    }\n" +
+            "    return counter;\n" +
+            "  }\n" +
+            "\n" +
+            "  var counter1 = makeCounter();\n" +
+            "  counter1();\n" +
+            "  counter1();\n" +
+            "\n" +
+            "  var count = 0;\n" +
+            "\n" +
+            "  counter1();\n" +
+            "}"
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("1");
+        assertThat(lines[1].trim()).isEqualTo("2");
+        assertThat(lines[2].trim()).isEqualTo("3");
+    }
 }

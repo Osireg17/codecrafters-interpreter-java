@@ -81,7 +81,8 @@ abstract class Stmt {
     final Expr expression;
   }
   static class Return extends Stmt {
-    Return(Expr value) {
+    Return(Token keyword, Expr value) {
+      this.keyword = keyword;
       this.value = value;
     }
 
@@ -90,6 +91,7 @@ abstract class Stmt {
       return visitor.visitReturnStmt(this);
     }
 
+    final Token keyword;
     final Expr value;
   }
   static class Var extends Stmt {

@@ -70,6 +70,8 @@ public class Main {
 
         Interpreter interpreter = new Interpreter();
         try {
+            Resolver resolver = new Resolver(interpreter);
+            resolver.resolve(statements);
             interpreter.interpret(statements);
         } catch (RuntimeError error) {
             System.err.println(error.getMessage());

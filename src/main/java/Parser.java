@@ -49,7 +49,7 @@ class Parser {
         }
 
         consume(TokenType.SEMICOLON, "Expect ';' after return value.");
-        return new Stmt.Return(value);
+        return new Stmt.Return(previous(), value);
     }
 
     private Stmt forStatement() {
