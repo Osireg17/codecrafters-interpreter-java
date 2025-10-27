@@ -1,0 +1,38 @@
+import java.util.List;
+
+public class LoxFunction implements LoxCallable {
+
+    private final String name;
+    private final List<Token> params;
+    private final List<Stmt> body;
+
+    public LoxFunction(String name, List<Token> params, List<Stmt> body) {
+        this.name = name;
+        this.params = params;
+        this.body = body;
+    }
+
+    @Override
+    public int arity() {
+        return params.size();
+    }
+
+    @Override
+    public Object call(Interpreter interpreter, List<Object> arguments) {
+        Environment environment = new Environment(interpreter.globals);
+        for (int i = 0; i < params.size(); i++) {
+            environment.define(params.get(i).lexeme, arguments.get(i));
+        }
+        try {
+            interpreter.executeBlock(body, environment);
+        } catch (Return returnValue) {
+            return returnValue.value;
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "<fn " + name + ">";
+    }
+}

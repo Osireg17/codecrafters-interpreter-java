@@ -596,4 +596,35 @@ class IntegrationTest {
         Main.run("var a = false; if (a = true) { print (a == true); }");
         assertThat(outContent.toString().trim()).isEqualTo("true");
     }
+
+    @Test
+    void itShouldCallClockFunctionAndAddNumber() {
+        Main.run("print clock() + 75;");
+        String output = outContent.toString().trim();
+        double result = Double.parseDouble(output);
+        assertThat(result).isGreaterThan(75.0);
+    }
+
+    @Test
+    void itShouldCallClockFunctionAndDivide() {
+        Main.run("print clock() / 1000;");
+        String output = outContent.toString().trim();
+        double result = Double.parseDouble(output);
+        assertThat(result).isGreaterThan(0.0);
+    }
+
+    @Test
+    void itShouldHandleClockWithVariableAndLogicalOperator() {
+        Main.run(
+            "var startTime = clock();\n" +
+            "var timeoutSeconds = 2;\n" +
+            "\n" +
+            "if ((clock() >= startTime) and (clock() <= (startTime + timeoutSeconds))) {\n" +
+            "  print \"Operation in progress...\";\n" +
+            "} else {\n" +
+            "  print \"Operation timed out!\";\n" +
+            "}"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("Operation in progress...");
+    }
 }
