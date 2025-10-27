@@ -627,4 +627,74 @@ class IntegrationTest {
         );
         assertThat(outContent.toString().trim()).isEqualTo("Operation in progress...");
     }
+
+    @Test
+    void itShouldHandleFunctionWithSingleArgument() {
+        Main.run(
+            "fun f1(a) {\n" +
+            "  print a;\n" +
+            "}\n" +
+            "f1(76);"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("76");
+    }
+
+    @Test
+    void itShouldHandleFunctionWithThreeArguments() {
+        Main.run(
+            "fun f3(a, b, c) { print a + b + c; }\n" +
+            "f3(24, 24, 24);"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("72");
+    }
+
+    @Test
+    void itShouldHandleFunctionWithEightArguments() {
+        Main.run(
+            "fun f8(a, b, c, d, e, f, g, h) { print a - b + c * d + e - f + g - h; }\n" +
+            "f8(51, 51, 51, 51, 51, 51, 51, 51);"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("2601");
+    }
+
+    @Test
+    void itShouldHandleRecursiveFibonacciFunction() {
+        Main.run(
+            "fun fib(n) {\n" +
+            "  if (n < 2) return n;\n" +
+            "  return fib(n - 2) + fib(n - 1);\n" +
+            "}\n" +
+            "\n" +
+            "var start = clock();\n" +
+            "print fib(10) == 55;\n" +
+            "print (clock() - start) < 5;"
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("true");
+        assertThat(lines[1].trim()).isEqualTo("true");
+    }
+
+    @Test
+    void itShouldHandleFunctionWithReturnInIfElse() {
+        Main.run(
+            "fun f() {\n" +
+            "  if (false) return \"no\"; else return \"ok\";\n" +
+            "}\n" +
+            "\n" +
+            "print f();"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("ok");
+    }
+
+    @Test
+    void itShouldHandleFunctionWithReturnInWhileLoop() {
+        Main.run(
+            "fun f() {\n" +
+            "  while (!true) return \"ok\";\n" +
+            "}\n" +
+            "\n" +
+            "print f();"
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("nil");
+    }
 }

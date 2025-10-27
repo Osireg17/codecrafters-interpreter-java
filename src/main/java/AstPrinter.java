@@ -140,4 +140,12 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
         builder.append(")");
         return builder.toString();
     }
+
+    @Override
+    public String visitReturnStmt(Stmt.Return stmt) {
+        if (stmt.value != null) {
+            return parenthesize("return", stmt.value);
+        }
+        return "(return)";
+    }
 }

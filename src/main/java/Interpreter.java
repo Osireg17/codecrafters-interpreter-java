@@ -22,8 +22,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     });
   }
 
-
-
     void interpret(List<Stmt> statements) {
         for (Stmt statement : statements) {
             execute(statement);
@@ -259,7 +257,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.params, stmt.body);
+        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.params, stmt.body, environment);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -287,6 +285,16 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
 
         return function.call(this, arguments);
+    }
+
+    @Override
+    public Void visitReturnStmt(Stmt.Return stmt) {
+        Object value = null;
+        if (stmt.value != null) {
+            value = evaluate(stmt.value);
+        }
+
+        throw new Return(value);
     }
 
 }
