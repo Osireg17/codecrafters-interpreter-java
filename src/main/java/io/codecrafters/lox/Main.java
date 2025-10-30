@@ -1,3 +1,4 @@
+package io.codecrafters.lox;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,3 +1,5 @@
+package io.codecrafters.lox;
+
 class Return extends RuntimeException {
     final Object value;
 

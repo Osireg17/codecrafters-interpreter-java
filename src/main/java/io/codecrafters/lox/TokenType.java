@@ -1,3 +1,4 @@
+package io.codecrafters.lox;
 
 public enum TokenType {
     // Single-character tokens.

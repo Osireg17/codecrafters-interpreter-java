@@ -1,3 +1,5 @@
+package io.codecrafters.lox;
+
 import java.util.List;
 
 public class LoxFunction implements LoxCallable {

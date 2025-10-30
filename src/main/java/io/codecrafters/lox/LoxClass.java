@@ -1,5 +1,6 @@
+package io.codecrafters.lox;
+
 import java.util.List;
-import java.util.Map;
 
 class LoxClass implements LoxCallable {
   final String name;

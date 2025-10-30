@@ -34,7 +34,7 @@ public class GenerateAst {
                 "If         : Expr condition, Stmt thenBranch," +
                             " Stmt elseBranch",
                 "Print      : Expr expression",
-                "Return     : Expr value",
+                "Return     : Token keyword, Expr value",
                 "Var        : Token name, Expr initializer",
                 "While      : Expr condition, Stmt body"
         ));
@@ -46,7 +46,7 @@ public class GenerateAst {
         String path = outputDir + "/" + baseName + ".java";
         PrintWriter writer = new PrintWriter(path, "UTF-8");
 
-        // No package declaration needed
+        writer.println("package io.codecrafters.lox;");
         writer.println();
         writer.println("import java.util.List;");
         writer.println();

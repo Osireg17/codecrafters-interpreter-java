@@ -1,3 +1,4 @@
+package io.codecrafters.lox;
 
 public class RuntimeError extends RuntimeException {
 

@@ -1,3 +1,5 @@
+package io.codecrafters.lox;
+
 import java.util.List;
 
 class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {

@@ -1,3 +1,5 @@
+package io.codecrafters.lox;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -840,5 +842,83 @@ class IntegrationTest {
         assertThat(errContent.toString()).contains("Can't read local variable in its own initializer");
         assertThat(Main.hadError).isTrue();
         assertThat(outContent.toString().trim()).isEmpty();
+    }
+
+    @Test
+    void itShouldHandleMultiplePropertiesWithConditionalAccess() {
+        Main.run(
+            """
+            class Robot {}
+            var r2d2 = Robot();
+
+            r2d2.model = "Astromech";
+            r2d2.operational = false;
+
+            if (r2d2.operational) {
+              print r2d2.model;
+              r2d2.mission = "Navigate hyperspace";
+              print r2d2.mission;
+            }
+            """
+        );
+        assertThat(outContent.toString().trim()).isEmpty();
+    }
+
+    @Test
+    void itShouldHandleMultipleInstancesWithProperties() {
+        Main.run(
+            """
+            class Superhero {}
+            var batman = Superhero();
+            var superman = Superhero();
+
+            batman.name = "Batman";
+            batman.called = 18;
+
+            superman.name = "Superman";
+            superman.called = 66;
+
+            print "Times " + superman.name + " was called: ";
+            print superman.called;
+            print "Times " + batman.name + " was called: ";
+            print batman.called;
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("Times Superman was called:");
+        assertThat(lines[1].trim()).isEqualTo("66");
+        assertThat(lines[2].trim()).isEqualTo("Times Batman was called:");
+        assertThat(lines[3].trim()).isEqualTo("18");
+    }
+
+    @Test
+    void itShouldHandlePropertyManipulationInFunctions() {
+        Main.run(
+            """
+            class Wizard {}
+            var gandalf = Wizard();
+
+            gandalf.color = "Grey";
+            gandalf.power = nil;
+            print gandalf.color;
+
+            fun promote(wizard) {
+              wizard.color = "White";
+              if (true) {
+                wizard.power = 100;
+              } else {
+                wizard.power = 0;
+              }
+            }
+
+            promote(gandalf);
+            print gandalf.color;
+            print gandalf.power;
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("Grey");
+        assertThat(lines[1].trim()).isEqualTo("White");
+        assertThat(lines[2].trim()).isEqualTo("100");
     }
 }
