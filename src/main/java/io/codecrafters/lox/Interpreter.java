@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.codecrafters.lox.Expr.This;
+
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private Environment environment = new Environment();
@@ -134,16 +136,6 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitVariableExpr(Expr.Variable expr) {
         return lookUpVariable(expr.name, expr);
     }
-
-    private Object lookUpVariable(Token name, Expr.Variable expr) {
-        Integer distance = locals.get(expr);
-        if (distance != null) {
-            return environment.getAt(distance, name.lexeme);
-        } else {
-            return globals.get(name);
-        }
-    }
-
 
     Object evaluate(Expr expr) {
         return expr.accept(this);
@@ -284,7 +276,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.params, stmt.body, environment);
+        LoxFunction function = new LoxFunction(stmt.name.lexeme, stmt.params, stmt.body, environment, false);
         environment.define(stmt.name.lexeme, function);
         return null;
     }
@@ -329,7 +321,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         environment.define(stmt.name.lexeme, null);
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-          LoxFunction function = new LoxFunction(method.name.lexeme, method.params, method.body, environment);
+          LoxFunction function = new LoxFunction(method.name.lexeme, method.params, method.body, environment, method.name.lexeme.equals("init"));
           methods.put(method.name.lexeme, function);
         }
 
@@ -362,5 +354,20 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     ((LoxInstance)object).set(expr.name, value);
     return value;
   }
+
+    @Override
+    public Object visitThisExpr(This expr) {
+    return lookUpVariable(expr.keyword, expr);
+    }
+
+
+    private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme);
+        } else {
+            return globals.get(name);
+        }
+    }
 
 }

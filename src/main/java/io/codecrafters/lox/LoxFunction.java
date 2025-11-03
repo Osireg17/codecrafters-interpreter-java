@@ -8,12 +8,14 @@ public class LoxFunction implements LoxCallable {
     private final List<Token> params;
     private final List<Stmt> body;
     private final Environment closure;
+    private final boolean isInitializer;
 
-    public LoxFunction(String name, List<Token> params, List<Stmt> body, Environment closure) {
+    public LoxFunction(String name, List<Token> params, List<Stmt> body, Environment closure, boolean isInitializer) {
         this.name = name;
         this.params = params;
         this.body = body;
         this.closure = closure;
+        this.isInitializer = isInitializer;
     }
 
     @Override
@@ -39,4 +41,10 @@ public class LoxFunction implements LoxCallable {
     public String toString() {
         return "<fn " + name + ">";
     }
+
+    LoxFunction bind(LoxInstance instance) {
+    Environment environment = new Environment(closure);
+    environment.define("this", instance);
+    return new LoxFunction(name, params, body, environment, isInitializer);
+  }
 }

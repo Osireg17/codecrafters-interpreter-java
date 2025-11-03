@@ -2,6 +2,8 @@ package io.codecrafters.lox;
 
 import java.util.List;
 
+import io.codecrafters.lox.Expr.This;
+
 class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
     String print(Expr expr) {
@@ -170,5 +172,10 @@ class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
     @Override
     public String visitSetExpr(Expr.Set expr) {
         return parenthesize("set " + expr.name.lexeme, expr.object, expr.value);
+    }
+
+    @Override
+    public String visitThisExpr(This expr) {
+        return parenthesize("this");
     }
 }
