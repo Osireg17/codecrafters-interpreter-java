@@ -1124,4 +1124,28 @@ class IntegrationTest {
         assertThat(lines[1].trim()).isEqualTo("Dog speaks : Woof");
         assertThat(lines[2].trim()).isEqualTo("Puppy speaks : Woof");
     }
+
+    @Test
+    void itShouldErrorWhenSuperUsedOutsideClass() {
+        Main.run("super.notEvenInAClass();");
+        assertThat(errContent.toString()).contains("Can't use 'super' outside of a class.");
+        assertThat(Main.hadError).isTrue();
+    }
+
+    @Test
+    void itShouldErrorWhenSuperNotFollowedByDot() {
+        Main.run(
+            """
+            class A {}
+
+            class B < A {
+              method() {
+                super;
+              }
+            }
+            """
+        );
+        assertThat(errContent.toString()).contains("Expect '.' after 'super'.");
+        assertThat(Main.hadError).isTrue();
+    }
 }
