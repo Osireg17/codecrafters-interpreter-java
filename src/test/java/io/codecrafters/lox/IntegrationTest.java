@@ -921,4 +921,81 @@ class IntegrationTest {
         assertThat(lines[1].trim()).isEqualTo("White");
         assertThat(lines[2].trim()).isEqualTo("100");
     }
+
+    @Test
+    void itShouldHandleConstructorWithParameters() {
+        Main.run(
+            """
+            class Robot {
+              init(model, function) {
+                this.model = model;
+                this.function = function;
+              }
+            }
+            print Robot("R2-D2", "Astromech").model;
+            """
+        );
+        assertThat(outContent.toString().trim()).isEqualTo("R2-D2");
+    }
+
+    @Test
+    void itShouldHandleConstructorWithConditionalLogic() {
+        Main.run(
+            """
+            class Counter {
+              init(startValue) {
+                if (startValue < 0) {
+                  print "startValue can't be negative";
+                  this.count = 0;
+                } else {
+                  this.count = startValue;
+                }
+              }
+            }
+
+            var instance = Counter(-52);
+            print instance.count;
+            print instance.init(52).count;
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("startValue can't be negative");
+        assertThat(lines[1].trim()).isEqualTo("0");
+        assertThat(lines[2].trim()).isEqualTo("52");
+    }
+
+    @Test
+    void itShouldHandleConstructorInMultipleClasses() {
+        Main.run(
+            """
+            class Vehicle {
+              init(type) {
+                this.type = type;
+              }
+            }
+
+            class Car {
+              init(make, model) {
+                this.make = make;
+                this.model = model;
+                this.wheels = "four";
+              }
+
+              describe() {
+                print this.make + " " + this.model +
+                " with " + this.wheels + " wheels";
+              }
+            }
+
+            var vehicle = Vehicle("Generic");
+            print "Generic " + vehicle.type;
+
+            var myCar = Car("Toyota", "Corolla");
+            myCar.describe();
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("Generic Generic");
+        assertThat(lines[1].trim()).isEqualTo("Toyota Corolla with four wheels");
+    }
 }
