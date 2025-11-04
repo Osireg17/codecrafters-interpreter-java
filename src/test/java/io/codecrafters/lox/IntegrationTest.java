@@ -998,4 +998,54 @@ class IntegrationTest {
         assertThat(lines[0].trim()).isEqualTo("Generic Generic");
         assertThat(lines[1].trim()).isEqualTo("Toyota Corolla with four wheels");
     }
+
+    @Test
+    void itShouldHandleSubclassInstantiation() {
+        Main.run(
+            """
+            {
+              class A {}
+
+              class B < A {}
+
+              class C < A {}
+
+              print A();
+              print B();
+              print C();
+            }
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("A instance");
+        assertThat(lines[1].trim()).isEqualTo("B instance");
+        assertThat(lines[2].trim()).isEqualTo("C instance");
+    }
+
+    @Test
+    void itShouldHandleMultiLevelInheritance() {
+        Main.run(
+            """
+            class Vehicle {}
+
+            class Car < Vehicle {}
+
+            class Sedan < Car {}
+
+            print Vehicle();
+            print Car();
+            print Sedan();
+
+            {
+              class Truck < Vehicle {}
+              print Truck();
+            }
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("Vehicle instance");
+        assertThat(lines[1].trim()).isEqualTo("Car instance");
+        assertThat(lines[2].trim()).isEqualTo("Sedan instance");
+        assertThat(lines[3].trim()).isEqualTo("Truck instance");
+    }
 }
