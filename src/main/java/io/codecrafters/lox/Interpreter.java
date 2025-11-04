@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.codecrafters.lox.Expr.Super;
 import io.codecrafters.lox.Expr.This;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
@@ -329,6 +330,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         environment.define(stmt.name.lexeme, null);
 
+        if (stmt.superclass != null) {
+            environment = new Environment(environment);
+            environment.define("super", superclass);
+        }
+
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
           LoxFunction function = new LoxFunction(method.name.lexeme, method.params, method.body, environment, method.name.lexeme.equals("init"));
@@ -337,6 +343,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         LoxClass klass = new LoxClass(stmt.name.lexeme,
             (LoxClass)superclass, methods);
+
+        if (superclass != null) {
+            environment = environment.enclosing;
+        }
 
         environment.assign(stmt.name, klass);
         return null;
@@ -380,6 +390,22 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         } else {
             return globals.get(name);
         }
+    }
+
+    @Override
+    public Object visitSuperExpr(Super expr) {
+        int distance = locals.get(expr);
+        LoxClass superclass = (LoxClass)environment.getAt(
+        distance, "super");
+
+        LoxInstance object = (LoxInstance)environment.getAt(
+        distance - 1, "this");
+
+        LoxFunction method = superclass.findMethod(expr.method.lexeme);
+        if (method == null) {
+                throw new RuntimeError(expr.method, "Undefined property '" + expr.method.lexeme + "'.");
+            }
+        return method.bind(object);
     }
 
 }

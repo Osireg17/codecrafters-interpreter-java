@@ -1048,4 +1048,80 @@ class IntegrationTest {
         assertThat(lines[2].trim()).isEqualTo("Sedan instance");
         assertThat(lines[3].trim()).isEqualTo("Truck instance");
     }
+
+    @Test
+    void itShouldHandleConstructorOverriding() {
+        Main.run(
+            """
+            class Base {
+              init(a) {
+                this.a = a;
+              }
+            }
+
+            class Derived < Base {
+              init(a, b) {
+                this.a = a;
+                this.b = b;
+              }
+            }
+
+            var derived = Derived(89, 32);
+            print derived.a;
+            print derived.b;
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("89");
+        assertThat(lines[1].trim()).isEqualTo("32");
+    }
+
+    @Test
+    void itShouldHandleMethodInheritanceAndOverriding() {
+        Main.run(
+            """
+            class Animal {
+              speak() {
+                return "Animal speaks";
+              }
+
+              makeSound() {
+                return "Generic sound";
+              }
+
+              communicate() {
+                return this.speak() + " : " + this.makeSound();
+              }
+            }
+
+            class Dog < Animal {
+              speak() {
+                return "Dog speaks";
+              }
+
+              makeSound() {
+                return "Woof";
+              }
+            }
+
+            class Puppy < Dog {
+              speak() {
+                return "Puppy speaks";
+              }
+            }
+
+            var animal = Animal();
+            var dog = Dog();
+            var puppy = Puppy();
+
+            print animal.communicate();
+            print dog.communicate();
+            print puppy.communicate();
+            """
+        );
+        String[] lines = outContent.toString().split("\n");
+        assertThat(lines[0].trim()).isEqualTo("Animal speaks : Generic sound");
+        assertThat(lines[1].trim()).isEqualTo("Dog speaks : Woof");
+        assertThat(lines[2].trim()).isEqualTo("Puppy speaks : Woof");
+    }
 }
